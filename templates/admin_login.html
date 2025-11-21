@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Administrador - Amigo Secreto</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 40px; 
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .login-container { 
+            max-width: 400px; 
+            width: 100%;
+            background: white; 
+            padding: 40px; 
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        .form-group { 
+            margin: 20px 0; 
+        }
+        label { 
+            display: block; 
+            margin-bottom: 8px; 
+            font-weight: bold;
+            color: #34495e;
+        }
+        input { 
+            width: 100%; 
+            padding: 12px; 
+            border: 2px solid #bdc3c7; 
+            border-radius: 6px; 
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        input:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        button { 
+            width: 100%; 
+            padding: 12px; 
+            background: #e74c3c; 
+            color: white; 
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        button:hover { 
+            background: #c0392b; 
+        }
+        .alert {
+            padding: 12px;
+            border-radius: 5px;
+            margin: 15px 0;
+            text-align: center;
+        }
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .back-link a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>⚙️ Acceso Administrativo</h1>
+        <p style="text-align: center; color: #7f8c8d; margin-bottom: 30px;">
+            Panel de administración del Amigo Secreto
+        </p>
+        
+        <form id="formLoginAdmin">
+            <div class="form-group">
+                <label>Usuario:</label>
+                <input type="text" id="usuario" required autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label>Contraseña:</label>
+                <input type="password" id="password" required>
+            </div>
+            <button type="submit">🔐 Ingresar como Administrador</button>
+        </form>
+        
+        <div id="resultado"></div>
+        
+        <div class="back-link">
+            <a href="/">← Volver al sitio principal</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('formLoginAdmin').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const data = {
+                usuario: document.getElementById('usuario').value,
+                password: document.getElementById('password').value
+            };
+            
+            const resultadoDiv = document.getElementById('resultado');
+            resultadoDiv.innerHTML = '<div class="alert">🔄 Verificando credenciales...</div>';
+            
+            try {
+                const response = await fetch('/api/admin/login', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultadoDiv.innerHTML = `<div class="alert alert-success">✅ ${result.mensaje}. Redirigiendo...</div>`;
+                    setTimeout(() => {
+                        window.location.href = result.redirect || '/admin';
+                    }, 1000);
+                } else {
+                    resultadoDiv.innerHTML = `<div class="alert alert-error">❌ ${result.error}</div>`;
+                }
+            } catch (error) {
+                resultadoDiv.innerHTML = `<div class="alert alert-error">❌ Error de conexión</div>`;
+            }
+        });
+
+        // Enfocar el campo de usuario al cargar
+        document.getElementById('usuario').focus();
+    </script>
+</body>
+</html>

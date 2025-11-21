@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Registro - Amigo Secreto</title>
+    <style>
+        .seccion { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+        .grupo-form { margin: 10px 0; }
+        label { display: block; margin: 5px 0; }
+        input, textarea, select { width: 100%; padding: 8px; margin: 5px 0; }
+    </style>
+</head>
+<body>
+    <h1>🎁 Registro para Amigo Secreto</h1>
+    
+    <form id="formRegistro">
+        <!-- Información Básica -->
+        <div class="seccion">
+            <h2>Información Personal</h2>
+            <div class="grupo-form">
+                <label>Nombre Completo *</label>
+                <input type="text" name="nombre" required>
+            </div>
+            <div class="grupo-form">
+                <label>Email *</label>
+                <input type="email" name="email" required>
+            </div>
+            <div class="grupo-form">
+                <label>Departamento</label>
+                <input type="text" name="departamento">
+            </div>
+
+            <!-- ✅ NUEVOS CAMPOS DE CLAVE -->
+            <div class="grupo-form">
+                <label>Crear Clave de Acceso *</label>
+                <input type="password" name="clave" required 
+                       placeholder="Ingresa tu clave para acceder al sistema"
+                       minlength="4">
+                <small>La clave debe tener al menos 4 caracteres</small>
+            </div>
+            <div class="grupo-form">
+                <label>Confirmar Clave *</label>
+                <input type="password" name="confirmar_clave" required 
+                       placeholder="Repite la misma clave">
+            </div>
+        </div>
+            </div>
+        </div>
+
+        <!-- Gustos e Intereses -->
+        <div class="seccion">
+            <h2>Gustos e Intereses</h2>
+            <div class="grupo-form">
+                <label>Tus gustos (ayuda a tu amigo secreto):</label>
+                <textarea name="gustos" rows="3" placeholder="Ej: café, música, tecnología, deporte..."></textarea>
+            </div>
+        </div>
+
+        <!-- Características para Regalo -->
+        <div class="seccion">
+            <h2>📏 Características para Regalo (Opcional)</h2>
+            <div class="grupo-form">
+                <label>Talla de Camisa</label>
+                <select name="talla_camisa">
+                    <option value="">Seleccionar</option>
+                    <option value="XS">XS</option>
+                    <option value="S">S</option>
+                    <option value="M">M</option>
+                    <option value="L">L</option>
+                    <option value="XL">XL</option>
+                </select>
+            </div>
+            <div class="grupo-form">
+                <label>Talla de Pantalón</label>
+                <input type="text" name="talla_pantalon" placeholder="Ej: 30, 32, 34...">
+            </div>
+            <div class="grupo-form">
+                <label>Talla de Zapato</label>
+                <input type="text" name="talla_zapato" placeholder="Ej: 40, 41, 42...">
+            </div>
+            <div class="grupo-form">
+                <label>Color Favorito</label>
+                <input type="text" name="color_favorito" placeholder="Ej: Azul, Negro, Rojo...">
+            </div>
+            <div class="grupo-form">
+                <label>¿Algún regalo que te gustaría recibir?</label>
+                <textarea name="regalo_deseado" rows="2" placeholder="Ej: Un libro de tecnología, unos audífonos..."></textarea>
+            </div>
+        </div>
+
+        <button type="submit">Registrarse en el Amigo Secreto</button>
+    </form>
+
+    <div id="resultado" style="display:none; margin:20px; padding:15px; background:#e8f5e8;"></div>
+
+        <script>
+        document.getElementById('formRegistro').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            
+            // ✅ VALIDAR QUE LAS CLAVES COINCIDAN
+            if (data.clave !== data.confirmar_clave) {
+                alert('❌ Las claves no coinciden. Por favor verifica.');
+                return;
+            }
+            
+            // ✅ VALIDAR LONGITUD MÍNIMA
+            if (data.clave.length < 4) {
+                alert('❌ La clave debe tener al menos 4 caracteres.');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/registro', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                const resultadoDiv = document.getElementById('resultado');
+                
+                if (result.id) {
+                    resultadoDiv.innerHTML = `
+                        <h3>✅ ¡Registro Exitoso!</h3>
+                        <p><strong>¡Bienvenido/a ${data.nombre}!</strong></p>
+                        <p>Tu registro ha sido completado exitosamente.</p>
+                        <p>Ahora puedes ingresar al sistema con tu email y la clave que creaste.</p>
+                        <a href="/login" style="display:inline-block; margin-top:10px; padding:10px 15px; background:#27ae60; color:white; text-decoration:none; border-radius:5px;">
+                            Ir a Ingresar
+                        </a>
+                    `;
+                    resultadoDiv.style.display = 'block';
+                    resultadoDiv.style.background = '#e8f5e8';
+                    this.reset();
+                } else {
+                    resultadoDiv.innerHTML = `<p style="color:red;">❌ Error: ${result.error}</p>`;
+                    resultadoDiv.style.display = 'block';
+                    resultadoDiv.style.background = '#ffeaea';
+                }
+            } catch (error) {
+                alert('Error de conexión: ' + error);
+            }
+        });
+
+        // ✅ VALIDACIÓN EN TIEMPO REAL DE CLAVES
+        document.querySelectorAll('input[type="password"]').forEach(input => {
+            input.addEventListener('input', function() {
+                const clave = document.querySelector('input[name="clave"]').value;
+                const confirmarClave = document.querySelector('input[name="confirmar_clave"]').value;
+                
+                if (confirmarClave && clave !== confirmarClave) {
+                    document.querySelector('input[name="confirmar_clave"]').style.borderColor = 'red';
+                } else {
+                    document.querySelector('input[name="confirmar_clave"]').style.borderColor = '';
+                }
+            });
+        });
+    </script>
+    <!-- Agrega este estilo -->
+<style>
+    .btn-volver {
+        display: inline-block;
+        margin: 20px 0;
+        padding: 10px 20px;
+        background: #7f8c8d;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+    .btn-volver:hover {
+        background: #95a5a6;
+    }
+</style>
+
+<!-- Y este botón al final del contenido -->
+<div style="text-align: center; margin-top: 30px;">
+    <a href="/" class="btn-volver">← Volver al Menú Principal</a>
+</div>
+</body>
+</html>

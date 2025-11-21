@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - Amigo Secreto</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            background: white; 
+            padding: 30px; 
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #3498db;
+        }
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border-left: 4px solid #3498db;
+        }
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .section {
+            margin: 30px 0;
+            padding: 25px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            background: #f8f9fa;
+        }
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 5px;
+        }
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+        .btn-warning {
+            background: #f39c12;
+            color: white;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background: #3498db;
+            color: white;
+        }
+        tr:hover {
+            background: #f5f5f5;
+        }
+        .asignacion-secreta {
+            background: #fff3cd !important;
+        }
+        .nav-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        .nav-tab {
+            padding: 12px 20px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            border-bottom: none;
+            margin-right: 5px;
+            border-radius: 5px 5px 0 0;
+        }
+        .nav-tab.active {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        /* Modal de detalles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 5% auto;
+    padding: 0;
+    border-radius: 10px;
+    width: 80%;
+    max-width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.modal-header {
+    background: #3498db;
+    color: white;
+    padding: 20px;
+    border-radius: 10px 10px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+}
+
+.close {
+    color: white;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover {
+    color: #f1f1f1;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin: 15px 0;
+}
+
+.detail-item {
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 5px;
+}
+
+.detail-item.full-width {
+    grid-column: 1 / -1;
+}
+
+.detail-label {
+    font-weight: bold;
+    color: #2c3e50;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.detail-value {
+    color: #34495e;
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚙️ Panel de Administración</h1>
+            <div>
+                <span style="margin-right: 15px; color: #2c3e50;">
+            👋 Admin: <strong id="adminUsuario">Usuario</strong>
+        </span>
+                <a href="/" class="btn btn-primary">🏠 Inicio</a>
+                <a href="/admin-logout" class="btn btn-warning">🚪 Cerrar Sesión</a>
+            </div>
+        </div>
+
+        <!-- Estadísticas -->
+        <div class="stats-container" id="estadisticas">
+            <div class="stat-card">
+                <div class="stat-number" id="totalParticipantes">0</div>
+                <div>Participantes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalAsignaciones">0</div>
+                <div>Asignaciones</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="estadoSorteo">❌</div>
+                <div>Sorteo Realizado</div>
+            </div>
+        </div>
+
+        <!-- Navegación por pestañas -->
+        <div class="nav-tabs">
+            <div class="nav-tab active" onclick="cambiarTab('tab-sorteo')">🎲 Realizar Sorteo</div>
+            <div class="nav-tab" onclick="cambiarTab('tab-participantes')">👥 Participantes</div>
+            <div class="nav-tab" onclick="cambiarTab('tab-asignaciones')">🔍 Asignaciones</div>
+        </div>
+
+        <!-- Pestaña: Realizar Sorteo -->
+<div id="tab-sorteo" class="tab-content active">
+    <div class="section">
+        <h2>🎲 Realizar Sorteo</h2>
+        
+        <div class="alert alert-info">
+            <strong>Tipos de Sorteo:</strong><br>
+            • <strong>Sorteo Completo:</strong> Reinicia todo y asigna nuevos amigos secretos (para primer sorteo)<br>
+            • <strong>Sorteo Nuevos:</strong> Solo para participantes que no han sido asignados (después del primer sorteo)
+        </div>
+        
+        <div id="alertSorteo"></div>
+        
+        <!-- Botones de Sorteo con lógica condicional -->
+        <div id="botonesSorteo">
+            <!-- Botón Sorteo Completo - Solo visible ANTES del primer sorteo -->
+            <button class="btn btn-primary btn-lg me-2" id="btnSorteoCompleto" 
+                    onclick="realizarSorteoCompleto()" style="display: none;">
+                🎁 Realizar Sorteo Completo
+            </button>
+            
+            <!-- Botón Sorteo Nuevos - Solo visible DESPUÉS del primer sorteo -->
+            <button class="btn btn-success btn-lg me-2" id="btnSorteoNuevos" 
+                    onclick="realizarSorteoNuevos()" style="display: none;">
+                ✅ Sorteo para Nuevos Participantes
+            </button>
+            
+            <!-- Botón Reiniciar - Solo visible DESPUÉS del primer sorteo -->
+            <button class="btn btn-danger btn-lg" id="btnReiniciar" 
+                    onclick="reiniciarSorteo()" style="display: none;">
+                🗑️ Reiniciar Todo
+            </button>
+        </div>
+        
+        <div id="infoSorteo" style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 5px;">
+            <strong id="contadorNuevos">Calculando...</strong>
+        </div>
+        
+        <div id="resultadoSorteo" style="margin-top: 20px;"></div>
+    </div>
+</div>
+
+        <!-- Pestaña: Participantes -->
+<div id="tab-participantes" class="tab-content">
+    <div class="section">
+        <h2>👥 Lista de Participantes Registrados</h2>
+        
+        <!-- Barra de Búsqueda y Controles -->
+        <div style="display: flex; gap: 15px; margin-bottom: 20px; align-items: center;">
+            <div style="flex: 1;">
+                <input type="text" id="inputBusqueda" placeholder="🔍 Buscar por nombre, email o departamento..." 
+                       style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+            </div>
+            <button class="btn btn-primary" onclick="buscarParticipantes()">Buscar</button>
+            <button class="btn btn-success" onclick="cargarParticipantes()">🔄 Todos</button>
+            <button class="btn btn-warning" onclick="exportarParticipantes()">📊 Exportar</button>
+        </div>
+        
+        <!-- Estadísticas de Búsqueda -->
+        <div id="estadisticasBusqueda" style="margin: 10px 0; padding: 10px; background: #e8f4fd; border-radius: 5px;">
+            <strong id="contadorResultados">Cargando...</strong>
+        </div>
+        
+        <!-- Tabla de Participantes -->
+        <div style="max-height: 600px; overflow-y: auto; border: 1px solid #ddd; border-radius: 5px;">
+            <table>
+                <thead style="position: sticky; top: 0; background: #3498db; color: white;">
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Email</th>
+                        <th>Departamento</th>
+                        <th>Gustos</th>
+                        <th>Código Acceso</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="listaParticipantes">
+                    <tr>
+                        <td colspan="6" style="text-align: center;">Cargando participantes...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Paginación (opcional para muchos registros) -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+            <div id="infoPaginacion"></div>
+            <div>
+                <button class="btn btn-primary" onclick="cargarMasParticipantes()" id="btnCargarMas" style="display: none;">
+                    📥 Cargar Más
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+        <!-- Pestaña: Asignaciones -->
+        <div id="tab-asignaciones" class="tab-content">
+            <div class="section">
+                <h2>🔍 Asignaciones del Sorteo</h2>
+                <p><em>Vista completa de todas las asignaciones (solo visible para administradores)</em></p>
+                <button class="btn btn-primary" onclick="cargarAsignaciones()">🔄 Actualizar Asignaciones</button>
+                <div id="listaAsignaciones"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==============================================
+        // FUNCIONES PRINCIPALES - LÓGICA DE BOTONES
+        // ==============================================
+
+        // Función para actualizar visibilidad de botones según estado
+        function actualizarBotonesSorteo(estadisticas) {
+            const btnSorteoCompleto = document.getElementById('btnSorteoCompleto');
+            const btnSorteoNuevos = document.getElementById('btnSorteoNuevos');
+            const btnReiniciar = document.getElementById('btnReiniciar');
+
+            // Si NO se ha realizado ningún sorteo
+            if (!estadisticas.sorteo_realizado) {
+                btnSorteoCompleto.style.display = 'inline-block';
+                btnSorteoNuevos.style.display = 'none';
+                btnReiniciar.style.display = 'none';
+            }
+            // Si YA se realizó al menos un sorteo
+            else {
+                btnSorteoCompleto.style.display = 'none';
+                btnReiniciar.style.display = 'inline-block';
+                
+                // Solo mostrar sorteo fino si hay nuevos participantes y número par
+                if (estadisticas.puede_sorteo_fino) {
+                    btnSorteoNuevos.style.display = 'inline-block';
+                    btnSorteoNuevos.disabled = false;
+                    btnSorteoNuevos.title = `Realizar sorteo para ${estadisticas.participantes_sin_asignacion} nuevos participantes`;
+                } else {
+                    btnSorteoNuevos.style.display = 'inline-block';
+                    btnSorteoNuevos.disabled = true;
+                    
+                    if (estadisticas.participantes_sin_asignacion === 0) {
+                        btnSorteoNuevos.title = 'No hay participantes nuevos sin asignación';
+                    } else if (estadisticas.participantes_sin_asignacion === 1) {
+                        btnSorteoNuevos.title = 'Solo hay 1 participante nuevo. Se necesitan al menos 2';
+                    } else {
+                        btnSorteoNuevos.title = `Hay ${estadisticas.participantes_sin_asignacion} participantes nuevos (número impar). Se necesita número par`;
+                    }
+                }
+            }
+        }
+
+        // Cargar estadísticas al iniciar
+        async function cargarEstadisticas() {
+            try {
+                const response = await fetch('/api/admin/estadisticas');
+                const data = await response.json();
+                
+                // Actualizar las tarjetas principales
+                document.getElementById('totalParticipantes').textContent = data.total_participantes || 0;
+                document.getElementById('totalAsignaciones').textContent = data.total_asignaciones || 0;
+                document.getElementById('estadoSorteo').textContent = data.sorteo_realizado ? '✅' : '❌';
+                
+                // Actualizar botones según el estado
+                actualizarBotonesSorteo(data);
+                
+                // Actualizar información de participantes nuevos
+                actualizarInfoSorteo(data);
+                
+            } catch (error) {
+                console.error('Error cargando estadísticas:', error);
+            }
+        }
+
+        // Actualizar información de participantes nuevos
+        function actualizarInfoSorteo(estadisticas) {
+            const participantesNuevos = estadisticas.participantes_sin_asignacion || 0;
+            const totalParticipantes = estadisticas.total_participantes || 0;
+            
+            let mensaje = '';
+            
+            if (!estadisticas.sorteo_realizado) {
+                mensaje = `📊 <strong>Listo para el primer sorteo:</strong> ${totalParticipantes} participantes registrados`;
+            } else {
+                if (participantesNuevos === 0) {
+                    mensaje = `✅ <strong>Sorteo completado:</strong> Todos los ${totalParticipantes} participantes tienen asignación`;
+                } else if (participantesNuevos === 1) {
+                    mensaje = `⏳ <strong>Esperando más participantes:</strong> Hay 1 participante nuevo (se necesita al menos 2)`;
+                } else if (participantesNuevos % 2 === 0) {
+                    mensaje = `✅ <strong>Listo para sorteo nuevo:</strong> ${participantesNuevos} participantes nuevos sin asignación`;
+                } else {
+                    mensaje = `⏳ <strong>Esperando participante adicional:</strong> ${participantesNuevos} participantes nuevos (número impar)`;
+                }
+            }
+            
+            document.getElementById('contadorNuevos').innerHTML = mensaje;
+        }
+
+        // ==============================================
+        // FUNCIONES DE SORTEO
+        // ==============================================
+
+        // Sorteo completo con confirmación
+        async function realizarSorteoCompleto() {
+            if (!confirm('⚠️ ¿ESTÁS SEGURO?\n\nEsta acción realizará el PRIMER SORTEO completo del sistema.\n\nTodos los participantes tendrán amigos secretos asignados.')) {
+                return;
+            }
+            
+            const btn = document.getElementById('btnSorteoCompleto');
+            const resultadoDiv = document.getElementById('resultadoSorteo');
+            const alertDiv = document.getElementById('alertSorteo');
+            
+            btn.disabled = true;
+            btn.innerHTML = '🔄 Realizando sorteo COMPLETO...';
+            
+            try {
+                const response = await fetch('/api/admin/sorteo-completo', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({confirmado: true})
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alertDiv.innerHTML = `<div class="alert alert-success">${result.mensaje}</div>`;
+                    mostrarResultadoSorteo(result);
+                } else {
+                    alertDiv.innerHTML = `<div class="alert alert-warning">❌ ${result.error}</div>`;
+                }
+                
+                // Actualizar estadísticas y botones
+                cargarEstadisticas();
+                
+            } catch (error) {
+                alertDiv.innerHTML = `<div class="alert alert-warning">❌ Error de conexión</div>`;
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '🎁 Realizar Sorteo Completo';
+            }
+        }
+
+        // Sorteo para nuevos participantes
+        async function realizarSorteoNuevos() {
+            const btn = document.getElementById('btnSorteoNuevos');
+            const resultadoDiv = document.getElementById('resultadoSorteo');
+            const alertDiv = document.getElementById('alertSorteo');
+            
+            btn.disabled = true;
+            btn.innerHTML = '🔄 Realizando sorteo para nuevos...';
+            
+            try {
+                const response = await fetch('/api/admin/realizar-sorteo', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'}
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alertDiv.innerHTML = `<div class="alert alert-success">${result.mensaje}</div>`;
+                    mostrarResultadoSorteo(result);
+                } else {
+                    alertDiv.innerHTML = `<div class="alert alert-warning">❌ ${result.error}</div>`;
+                }
+                
+                // Actualizar estadísticas y botones
+                cargarEstadisticas();
+                
+            } catch (error) {
+                alertDiv.innerHTML = `<div class="alert alert-warning">❌ Error de conexión</div>`;
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '✅ Sorteo para Nuevos Participantes';
+            }
+        }
+
+        // Función para reiniciar todo el sorteo
+        async function reiniciarSorteo() {
+            if (!confirm('⚠️ ¿ESTÁS ABSOLUTAMENTE SEGURO?\n\nEsta acción ELIMINARÁ TODAS las asignaciones existentes.\n\nLos participantes tendrán que consultar nuevamente sus amigos secretos.')) {
+                return;
+            }
+            
+            // Confirmación EXTRA
+            if (!confirm('🔴 CONFIRMACIÓN FINAL:\n\n¿Realmente quieres REINICIAR todo el sorteo?\n\nEsta acción NO se puede deshacer.')) {
+                return;
+            }
+            
+            try {
+                // Aquí implementarías la lógica para reiniciar el sorteo
+                // Por ahora, mostramos un mensaje
+                alert('Función de reinicio completo en desarrollo...');
+                
+                // Después del reinicio, actualizar estadísticas
+                cargarEstadisticas();
+                
+            } catch (error) {
+                alert('❌ Error al reiniciar el sorteo');
+            }
+        }
+
+        function mostrarResultadoSorteo(result) {
+            const resultadoDiv = document.getElementById('resultadoSorteo');
+            resultadoDiv.innerHTML = `
+                <h3>🎉 ${result.tipo_sorteo === 'completo' ? 'Sorteo Completo' : 'Sorteo Nuevos'} Realizado!</h3>
+                <p><strong>Participantes:</strong> ${result.total_participantes}</p>
+                <div style="max-height: 300px; overflow-y: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Quien Regala</th>
+                                <th>Para Quien</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${result.asignaciones.map(asig => `
+                                <tr class="asignacion-secreta">
+                                    <td>${asig.dador}</td>
+                                    <td>${asig.receptor}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        // ==============================================
+        // FUNCIONES DE NAVEGACIÓN Y UI
+        // ==============================================
+
+        function cambiarTab(tabId) {
+            // Ocultar todas las pestañas
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Mostrar pestaña seleccionada
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // ==============================================
+        // FUNCIONES DE PARTICIPANTES (mantener existentes)
+        // ==============================================
+
+        // Variables para paginación
+        let paginaActual = 1;
+        const resultadosPorPagina = 50;
+
+        async function buscarParticipantes() {
+            const busqueda = document.getElementById('inputBusqueda').value;
+            paginaActual = 1;
+            
+            try {
+                const response = await fetch(`/api/admin/buscar-participantes?q=${encodeURIComponent(busqueda)}`);
+                const data = await response.json();
+                
+                actualizarTablaParticipantes(data);
+                
+            } catch (error) {
+                console.error('Error en búsqueda:', error);
+                document.getElementById('listaParticipantes').innerHTML = '<tr><td colspan="6">❌ Error en la búsqueda</td></tr>';
+            }
+        }
+
+        async function cargarParticipantes() {
+            // Limpiar búsqueda
+            document.getElementById('inputBusqueda').value = '';
+            await buscarParticipantes();
+        }
+
+        function actualizarTablaParticipantes(data) {
+            const tbody = document.getElementById('listaParticipantes');
+            const estadisticasDiv = document.getElementById('estadisticasBusqueda');
+            const contador = document.getElementById('contadorResultados');
+            
+            if (data.participantes && data.participantes.length > 0) {
+                // Actualizar estadísticas
+                contador.innerHTML = `📊 Mostrando ${data.participantes.length} participante${data.participantes.length !== 1 ? 's' : ''} 
+                                     ${data.busqueda ? ` para "${data.busqueda}"` : ''}`;
+                
+                // Actualizar tabla
+                tbody.innerHTML = data.participantes.map(participante => `
+                    <tr>
+                        <td><strong>${participante.nombre}</strong></td>
+                        <td>${participante.email || 'N/A'}</td>
+                        <td>${participante.departamento || 'N/A'}</td>
+                        <td title="${participante.gustos || ''}">
+                            ${(participante.gustos || 'N/A').substring(0, 30)}${(participante.gustos || '').length > 30 ? '...' : ''}
+                        </td>
+                        <td><code>${participante.codigo_acceso}</code></td>
+                        <td>
+                            <button class="btn btn-primary" onclick="verDetallesParticipante(${participante.id})" 
+                                    style="padding: 5px 10px; font-size: 12px;">
+                                👁️ Ver
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+                
+            } else {
+                contador.innerHTML = data.busqueda ? 
+                    `🔍 No se encontraron participantes para "${data.busqueda}"` : 
+                    '📝 No hay participantes registrados';
+                tbody.innerHTML = '<tr><td colspan="6">No se encontraron participantes</td></tr>';
+            }
+        }
+
+        // Búsqueda en tiempo real con debounce
+        let timeoutBusqueda;
+        document.getElementById('inputBusqueda').addEventListener('input', function(e) {
+            clearTimeout(timeoutBusqueda);
+            timeoutBusqueda = setTimeout(() => {
+                if (e.target.value.length >= 2 || e.target.value.length === 0) {
+                    buscarParticipantes();
+                }
+            }, 500);
+        });
+
+        // ==============================================
+        // FUNCIONES DE ASIGNACIONES (mantener existentes)
+        // ==============================================
+
+        async function cargarAsignaciones() {
+            try {
+                const response = await fetch('/api/admin/asignaciones');
+                const data = await response.json();
+                
+                const listaDiv = document.getElementById('listaAsignaciones');
+                
+                if (data.asignaciones && data.asignaciones.length > 0) {
+                    listaDiv.innerHTML = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Quien Regala</th>
+                                    <th>Para Quien</th>
+                                    <th>Gustos</th>
+                                    <th>Color Favorito</th>
+                                    <th>Regalo Deseado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.asignaciones.map(asig => `
+                                    <tr class="asignacion-secreta">
+                                        <td><strong>${asig.dador}</strong></td>
+                                        <td><strong>${asig.receptor}</strong></td>
+                                        <td>${asig.gustos_receptor || 'N/A'}</td>
+                                        <td>${asig.color_favorito_receptor || 'N/A'}</td>
+                                        <td>${asig.regalo_deseado_receptor || 'N/A'}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+                } else {
+                    listaDiv.innerHTML = '<p>No se ha realizado el sorteo aún.</p>';
+                }
+                
+            } catch (error) {
+                document.getElementById('listaAsignaciones').innerHTML = '<p>❌ Error cargando asignaciones</p>';
+            }
+        }
+
+        // ==============================================
+        // FUNCIONES DEL MODAL DE DETALLES (mantener existentes)
+        // ==============================================
+
+        function verDetallesParticipante(id) {
+            abrirModal();
+            cargarDetallesParticipante(id);
+        }
+
+        function abrirModal() {
+            document.getElementById('modalDetalles').style.display = 'block';
+            document.getElementById('modalLoading').style.display = 'block';
+            document.getElementById('modalContent').style.display = 'none';
+        }
+
+        function cerrarModal() {
+            document.getElementById('modalDetalles').style.display = 'none';
+        }
+
+        async function cargarDetallesParticipante(participanteId) {
+            try {
+                const response = await fetch(`/api/admin/detalles-participante/${participanteId}`);
+                const data = await response.json();
+                
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                    cerrarModal();
+                    return;
+                }
+                
+                // Llenar los campos del modal
+                document.getElementById('detailNombre').textContent = data.nombre || 'N/A';
+                document.getElementById('detailEmail').textContent = data.email || 'N/A';
+                document.getElementById('detailDepartamento').textContent = data.departamento || 'N/A';
+                document.getElementById('detailCodigo').textContent = data.codigo_acceso || 'N/A';
+                document.getElementById('detailTallaCamisa').textContent = data.talla_camisa || 'N/A';
+                document.getElementById('detailTallaPantalon').textContent = data.talla_pantalon || 'N/A';
+                document.getElementById('detailTallaZapato').textContent = data.talla_zapato || 'N/A';
+                document.getElementById('detailColor').textContent = data.color_favorito || 'N/A';
+                document.getElementById('detailGustos').textContent = data.gustos || 'N/A';
+                document.getElementById('detailRegaloDeseado').textContent = data.regalo_deseado || 'N/A';
+                
+                // Mostrar información de asignación si existe
+                if (data.tiene_asignacion && data.amigo_secreto) {
+                    document.getElementById('detailAsignadoA').textContent = data.amigo_secreto.nombre;
+                    document.getElementById('detailGustosAmigo').textContent = data.amigo_secreto.gustos || 'N/A';
+                    document.getElementById('infoAsignacion').style.display = 'block';
+                    document.getElementById('sinAsignacion').style.display = 'none';
+                } else {
+                    document.getElementById('infoAsignacion').style.display = 'none';
+                    document.getElementById('sinAsignacion').style.display = 'block';
+                }
+                
+                // Mostrar contenido
+                document.getElementById('modalLoading').style.display = 'none';
+                document.getElementById('modalContent').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Error cargando detalles:', error);
+                alert('Error al cargar los detalles del participante');
+                cerrarModal();
+            }
+        }
+
+        // ==============================================
+        // FUNCIÓN DE EXPORTACIÓN (mantener existente)
+        // ==============================================
+
+        async function exportarParticipantes() {
+            try {
+                // Mostrar loading
+                const btnExportar = document.querySelector('button[onclick="exportarParticipantes()"]');
+                const originalText = btnExportar.innerHTML;
+                btnExportar.innerHTML = '📊 Generando archivo...';
+                btnExportar.disabled = true;
+                
+                // Hacer la solicitud
+                const response = await fetch('/api/admin/exportar-participantes');
+                
+                if (!response.ok) {
+                    throw new Error('Error en la exportación');
+                }
+                
+                // Descargar archivo
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                
+                // Nombre del archivo
+                const contentDisposition = response.headers.get('Content-Disposition');
+                let filename = 'participantes.csv';
+                if (contentDisposition) {
+                    const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+                    if (filenameMatch) {
+                        filename = filenameMatch[1];
+                    }
+                }
+                
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                
+                // Restaurar botón
+                btnExportar.innerHTML = originalText;
+                btnExportar.disabled = false;
+                
+            } catch (error) {
+                console.error('Error exportando:', error);
+                alert('❌ Error al exportar los participantes');
+                
+                // Restaurar botón en caso de error
+                const btnExportar = document.querySelector('button[onclick="exportarParticipantes()"]');
+                btnExportar.innerHTML = '📊 Exportar';
+                btnExportar.disabled = false;
+            }
+        }
+
+        // ==============================================
+        // INICIALIZACIÓN
+        // ==============================================
+
+        // Cargar estadísticas al iniciar
+        document.addEventListener('DOMContentLoaded', function() {
+            cargarEstadisticas();
+            
+            // Mostrar información del admin logueado
+            document.getElementById('adminUsuario').textContent = 'Administrador';
+        });
+
+        // Cerrar modal al hacer clic fuera
+        window.onclick = function(event) {
+            const modal = document.getElementById('modalDetalles');
+            if (event.target === modal) {
+                cerrarModal();
+            }
+        }
+
+        // Cargar participantes al abrir la pestaña
+        document.querySelector('.nav-tab[onclick="cambiarTab(\'tab-participantes\')"]')
+            .addEventListener('click', cargarParticipantes);
+        
+        // Cargar asignaciones al abrir la pestaña  
+        document.querySelector('.nav-tab[onclick="cambiarTab(\'tab-asignaciones\')"]')
+            .addEventListener('click', cargarAsignaciones);
+
+    </script>
+
+    <!-- Modal de Detalles del Participante -->
+    <div id="modalDetalles" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>👤 Detalles del Participante</h3>
+                <span class="close" onclick="cerrarModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="modalLoading" style="text-align: center; padding: 20px;">
+                    <p>🔄 Cargando información...</p>
+                </div>
+                <div id="modalContent" style="display: none;">
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <span class="detail-label">Nombre:</span>
+                            <span class="detail-value" id="detailNombre"></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Email:</span>
+                            <span class="detail-value" id="detailEmail"></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Departamento:</span>
+                            <span class="detail-value" id="detailDepartamento"></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Código Acceso:</span>
+                            <span class="detail-value" id="detailCodigo"></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Talla Camisa:</span>
+                            <span class="detail-value" id="detailTallaCamisa"></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Talla Pantalón:</span>
+                            <span class="detail-value" id="detailTallaPantalon"></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Talla Zapato:</span>
+                            <span class="detail-value" id="detailTallaZapato"></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Color Favorito:</span>
+                            <span class="detail-value" id="detailColor"></span>
+                        </div>
+                        <div class="detail-item full-width">
+                            <span class="detail-label">Gustos:</span>
+                            <span class="detail-value" id="detailGustos"></span>
+                        </div>
+                        <div class="detail-item full-width">
+                            <span class="detail-label">Regalo Deseado:</span>
+                            <span class="detail-value" id="detailRegaloDeseado"></span>
+                        </div>
+                    </div>
+                    
+                    <!-- Información de asignación -->
+                    <div id="infoAsignacion" style="margin-top: 20px; padding: 15px; background: #e8f4fd; border-radius: 5px; display: none;">
+                        <h4>🎁 Información de Amigo Secreto</h4>
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <span class="detail-label">Asignado a:</span>
+                                <span class="detail-value" id="detailAsignadoA"></span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Gustos:</span>
+                                <span class="detail-value" id="detailGustosAmigo"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="sinAsignacion" style="margin-top: 20px; padding: 15px; background: #fff3cd; border-radius: 5px; display: none;">
+                        <p>⏳ Este participante no tiene amigo secreto asignado aún.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Panel - Amigo Secreto</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container { 
+            max-width: 1000px; 
+            margin: 0 auto; 
+            background: white; 
+            padding: 30px; 
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .user-info {
+            background: #e8f5e8;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+        }
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 400px;
+        }
+        .chat-messages {
+            flex: 1;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            overflow-y: auto;
+            background: #f9f9f9;
+        }
+        .message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .user-message {
+            background: #e3f2fd;
+            margin-left: 50px;
+        }
+        .assistant-message {
+            background: #f3e5f5;
+            margin-right: 50px;
+        }
+        .chat-input {
+            display: flex;
+            gap: 10px;
+        }
+        .chat-input textarea {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            resize: vertical;
+        }
+        .chat-input button {
+            padding: 12px 20px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .amigo-info {
+            background: #fff3e0;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .btn-logout {
+            background: #ff6b6b;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .timestamp {
+            font-size: 11px;
+            color: #666;
+            margin-top: 5px;
+            text-align: right;
+        }
+        .nombre-amigo {
+            color: #e91e63;
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎁 Mi Panel de Amigo Secreto</h1>
+            <a href="/logout" class="btn-logout">🚪 Cerrar Sesión</a>
+        </div>
+
+        <div class="user-info">
+            <h3>👋 Hola, {{ session.usuario_nombre }}!</h3>
+            <p>Email: {{ session.usuario_email }}</p>
+            <p>ID Usuario: {{ session.usuario_id }}</p>
+        </div>
+
+        <!-- Información del Amigo Secreto -->
+        <div class="section">
+            <h2>🔍 Información de tu Amigo Secreto</h2>
+            <div id="infoAmigo" class="amigo-info">
+                <p>Cargando información...</p>
+            </div>
+            <button onclick="cargarAmigoSecreto()">🔄 Actualizar Información</button>
+        </div>
+
+        <!-- Chat con IA -->
+        <div class="section">
+            <h2>💬 Asistente Inteligente</h2>
+            <p><em>Pregúntame sobre ideas de regalos, sugerencias, o cualquier duda</em></p>
+            
+            <div class="chat-container">
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message assistant-message">
+                        <strong>Asistente:</strong> ¡Hola! Soy tu asistente para el amigo secreto. ¿En qué puedo ayudarte?
+                        <div class="timestamp">Ahora</div>
+                    </div>
+                </div>
+                
+                <div class="chat-input">
+                    <textarea id="preguntaInput" placeholder="Escribe tu pregunta aquí... Ej: ¿Qué le puedo regalar? ¿Qué ideas tienes?" rows="3"></textarea>
+                    <button onclick="enviarPregunta()">📤 Enviar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Cargar información del amigo secreto al iniciar
+        document.addEventListener('DOMContentLoaded', function() {
+            cargarAmigoSecreto();
+            cargarHistorialChat(); // Cargar historial al iniciar
+        });
+
+        async function cargarAmigoSecreto() {
+            try {
+                const response = await fetch('/api/mi-amigo-secreto');
+                const data = await response.json();
+                
+                const infoDiv = document.getElementById('infoAmigo');
+                
+                if (data.amigo_secreto) {
+                    const amigo = data.amigo_secreto;
+                    infoDiv.innerHTML = `
+                        <div class="nombre-amigo">🎁 ¡Tu Amigo Secreto es: ${amigo.nombre || 'No disponible'}!</div>
+                        <h4>🎯 Información para el regalo:</h4>
+                        <p><strong>Gustos:</strong> ${amigo.gustos || 'No especificado'}</p>
+                        <p><strong>Color favorito:</strong> ${amigo.color_favorito || 'No especificado'}</p>
+                        <p><strong>Regalo deseado:</strong> ${amigo.regalo_deseado || 'No especificado'}</p>
+                        ${amigo.talla_camisa ? `<p><strong>Talla camisa:</strong> ${amigo.talla_camisa}</p>` : ''}
+                        ${amigo.talla_pantalon ? `<p><strong>Talla pantalón:</strong> ${amigo.talla_pantalon}</p>` : ''}
+                        ${amigo.talla_zapato ? `<p><strong>Talla zapato:</strong> ${amigo.talla_zapato}</p>` : ''}
+                    `;
+                } else {
+                    infoDiv.innerHTML = `<p>${data.mensaje || 'Aún no se ha realizado el sorteo'}</p>`;
+                }
+            } catch (error) {
+                document.getElementById('infoAmigo').innerHTML = '<p>❌ Error cargando información</p>';
+            }
+        }
+
+        // Función para cargar el historial de chat
+        async function cargarHistorialChat() {
+            try {
+                const response = await fetch('/api/chat/historial/{{ session.usuario_id }}');
+                const data = await response.json();
+                
+                const chatMessages = document.getElementById('chatMessages');
+                
+                if (data.historial && data.historial.length > 0) {
+                    // Limpiar mensaje de bienvenida
+                    chatMessages.innerHTML = '';
+                    
+                    // Agregar todas las conversaciones del historial
+                    data.historial.reverse().forEach(chat => {
+                        // Mensaje del usuario
+                        const userMessage = document.createElement('div');
+                        userMessage.className = 'message user-message';
+                        userMessage.innerHTML = `
+                            <strong>Tú:</strong> ${chat.pregunta}
+                            <div class="timestamp">${chat.fecha}</div>
+                        `;
+                        chatMessages.appendChild(userMessage);
+                        
+                        // Respuesta del asistente
+                        const assistantMessage = document.createElement('div');
+                        assistantMessage.className = 'message assistant-message';
+                        assistantMessage.innerHTML = `
+                            <strong>Asistente:</strong> ${chat.respuesta}
+                            <div class="timestamp">${chat.fecha}</div>
+                        `;
+                        chatMessages.appendChild(assistantMessage);
+                    });
+                }
+                
+                // Scroll al final
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                
+            } catch (error) {
+                console.error('Error cargando historial:', error);
+            }
+        }
+
+        async function enviarPregunta() {
+            const preguntaInput = document.getElementById('preguntaInput');
+            const pregunta = preguntaInput.value.trim();
+            const chatMessages = document.getElementById('chatMessages');
+            
+            if (!pregunta) return;
+            
+            // Agregar mensaje del usuario al chat
+            const userMessage = document.createElement('div');
+            userMessage.className = 'message user-message';
+            userMessage.innerHTML = `<strong>Tú:</strong> ${pregunta}<div class="timestamp">Ahora</div>`;
+            chatMessages.appendChild(userMessage);
+            
+            // Limpiar input y hacer scroll
+            preguntaInput.value = '';
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            // Mostrar "escribiendo..."
+            const typingMessage = document.createElement('div');
+            typingMessage.className = 'message assistant-message';
+            typingMessage.innerHTML = `<strong>Asistente:</strong> <em>Escribiendo...</em>`;
+            chatMessages.appendChild(typingMessage);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            try {
+                // USAR EL ENDPOINT CORRECTO con usuario_id
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        pregunta: pregunta,
+                        usuario_id: {{ session.usuario_id }}
+                    })
+                });
+                
+                const data = await response.json();
+                
+                // Remover "escribiendo..." y agregar respuesta real
+                chatMessages.removeChild(typingMessage);
+                
+                const assistantMessage = document.createElement('div');
+                assistantMessage.className = 'message assistant-message';
+                assistantMessage.innerHTML = `
+                    <strong>Asistente:</strong> ${data.respuesta || data.error || 'No se pudo obtener respuesta'}
+                    <div class="timestamp">Ahora</div>
+                `;
+                chatMessages.appendChild(assistantMessage);
+                
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                
+                // Recargar el historial completo para asegurar consistencia
+                setTimeout(cargarHistorialChat, 500);
+                
+            } catch (error) {
+                chatMessages.removeChild(typingMessage);
+                const errorMessage = document.createElement('div');
+                errorMessage.className = 'message assistant-message';
+                errorMessage.innerHTML = `
+                    <strong>Asistente:</strong> ❌ Error de conexión
+                    <div class="timestamp">Ahora</div>
+                `;
+                chatMessages.appendChild(errorMessage);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+        }
+
+        // Enviar pregunta con Enter
+        document.getElementById('preguntaInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                enviarPregunta();
+            }
+        });
+    </script>
+</body>
+</html>
