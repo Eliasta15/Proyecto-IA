@@ -427,29 +427,32 @@
             }
         }
 
-        // Actualizar información de participantes nuevos
-        function actualizarInfoSorteo(estadisticas) {
-            const participantesNuevos = estadisticas.participantes_sin_asignacion || 0;
-            const totalParticipantes = estadisticas.total_participantes || 0;
-            
-            let mensaje = '';
-            
-            if (!estadisticas.sorteo_realizado) {
-                mensaje = `📊 <strong>Listo para el primer sorteo:</strong> ${totalParticipantes} participantes registrados`;
-            } else {
-                if (participantesNuevos === 0) {
-                    mensaje = `✅ <strong>Sorteo completado:</strong> Todos los ${totalParticipantes} participantes tienen asignación`;
-                } else if (participantesNuevos === 1) {
-                    mensaje = `⏳ <strong>Esperando más participantes:</strong> Hay 1 participante nuevo (se necesita al menos 2)`;
-                } else if (participantesNuevos % 2 === 0) {
-                    mensaje = `✅ <strong>Listo para sorteo nuevo:</strong> ${participantesNuevos} participantes nuevos sin asignación`;
-                } else {
-                    mensaje = `⏳ <strong>Esperando participante adicional:</strong> ${participantesNuevos} participantes nuevos (número impar)`;
-                }
-            }
-            
-            document.getElementById('contadorNuevos').innerHTML = mensaje;
+        // En la función actualizarInfoSorteo, añade este caso:
+function actualizarInfoSorteo(estadisticas) {
+    const participantesNuevos = estadisticas.participantes_sin_asignacion || 0;
+    const totalParticipantes = estadisticas.total_participantes || 0;
+    
+    let mensaje = '';
+    
+    if (!estadisticas.sorteo_realizado) {
+        mensaje = `📊 <strong>Listo para el primer sorteo:</strong> ${totalParticipantes} participantes registrados`;
+    } else {
+        if (participantesNuevos === 0) {
+            mensaje = `✅ <strong>Sorteo completado:</strong> Todos los ${totalParticipantes} participantes tienen asignación`;
+        } else if (participantesNuevos === 1) {
+            mensaje = `⏳ <strong>Esperando más participantes:</strong> Hay 1 participante nuevo (se necesita al menos 2)`;
+        } else if (participantesNuevos % 2 === 0) {
+            mensaje = `✅ <strong>Listo para sorteo nuevo:</strong> ${participantesNuevos} participantes nuevos sin asignación`;
+        } else {
+            mensaje = `⏳ <strong>Esperando participante adicional:</strong> ${participantesNuevos} participantes nuevos (número impar)`;
         }
+        
+        // Añadir información sobre reinicio
+        mensaje += `<br><small>💡 Usa "Reiniciar Todo" para eliminar todas las asignaciones y empezar de cero</small>`;
+    }
+    
+    document.getElementById('contadorNuevos').innerHTML = mensaje;
+}
 
         // ==============================================
         // FUNCIONES DE SORTEO
@@ -531,28 +534,54 @@
         }
 
         // Función para reiniciar todo el sorteo
-        async function reiniciarSorteo() {
-            if (!confirm('⚠️ ¿ESTÁS ABSOLUTAMENTE SEGURO?\n\nEsta acción ELIMINARÁ TODAS las asignaciones existentes.\n\nLos participantes tendrán que consultar nuevamente sus amigos secretos.')) {
-                return;
-            }
+async function reiniciarSorteo() {
+    if (!confirm('⚠️ ¿ESTÁS ABSOLUTAMENTE SEGURO?\n\nEsta acción ELIMINARÁ TODAS las asignaciones existentes.\n\nLos participantes tendrán que consultar nuevamente sus amigos secretos.')) {
+        return;
+    }
+    
+    // Confirmación EXTRA
+    if (!confirm('🔴 CONFIRMACIÓN FINAL:\n\n¿Realmente quieres REINICIAR todo el sorteo?\n\n✅ Se eliminarán TODAS las asignaciones\n✅ Los participantes podrán volver a consultar\n✅ Podrás realizar un nuevo sorteo completo\n\nEsta acción NO se puede deshacer.')) {
+        return;
+    }
+    
+    const btn = document.getElementById('btnReiniciar');
+    const alertDiv = document.getElementById('alertSorteo');
+    
+    btn.disabled = true;
+    btn.innerHTML = '🔄 Reiniciando sistema...';
+    
+    try {
+        const response = await fetch('/api/admin/reiniciar-todo', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({confirmado: true})
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            alertDiv.innerHTML = `<div class="alert alert-success">${result.mensaje}<br>${result.detalles}</div>`;
             
-            // Confirmación EXTRA
-            if (!confirm('🔴 CONFIRMACIÓN FINAL:\n\n¿Realmente quieres REINICIAR todo el sorteo?\n\nEsta acción NO se puede deshacer.')) {
-                return;
-            }
+            // Limpiar resultado de sorteo anterior
+            document.getElementById('resultadoSorteo').innerHTML = '';
             
-            try {
-                // Aquí implementarías la lógica para reiniciar el sorteo
-                // Por ahora, mostramos un mensaje
-                alert('Función de reinicio completo en desarrollo...');
-                
-                // Después del reinicio, actualizar estadísticas
-                cargarEstadisticas();
-                
-            } catch (error) {
-                alert('❌ Error al reiniciar el sorteo');
-            }
+            // Mostrar mensaje de éxito
+            alert('✅ ' + result.mensaje + '\n\n' + result.detalles);
+        } else {
+            alertDiv.innerHTML = `<div class="alert alert-warning">❌ ${result.error}</div>`;
         }
+        
+        // Actualizar estadísticas y botones
+        cargarEstadisticas();
+        
+    } catch (error) {
+        alertDiv.innerHTML = `<div class="alert alert-warning">❌ Error de conexión al reiniciar</div>`;
+        console.error('Error reiniciando:', error);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '🗑️ Reiniciar Todo';
+    }
+}
 
         function mostrarResultadoSorteo(result) {
             const resultadoDiv = document.getElementById('resultadoSorteo');

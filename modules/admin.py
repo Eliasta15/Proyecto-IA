@@ -460,6 +460,44 @@ def login_admin():
             'error': 'Credenciales incorrectas'
         }), 401
     
+@admin_bp.route('/api/admin/reiniciar-todo', methods=['POST'])
+@admin_required
+def reiniciar_todo():
+    """Reinicia COMPLETAMENTE el sistema - elimina todas las asignaciones"""
+    conn = psycopg2.connect(**DB_CONFIG)
+    cur = conn.cursor()
+    
+    try:
+        # CONFIRMACIÓN EXTRA desde el frontend
+        data = request.json
+        if not data.get('confirmado'):
+            return jsonify({
+                'necesita_confirmacion': True,
+                'mensaje': '⚠️ Esta acción ELIMINARÁ TODAS las asignaciones existentes. ¿Estás seguro?',
+                'detalles': 'Se eliminarán todas las asignaciones y los participantes podrán volver a consultar.'
+            }), 400
+
+        # 1. ELIMINAR todas las asignaciones
+        cur.execute("DELETE FROM ia.tb_asignaciones_ai")
+        
+        # 2. RESETEAR flag de participación de TODOS los participantes
+        cur.execute("UPDATE ia.tb_participantes_ai SET participo_sorteo = FALSE")
+        
+        conn.commit()
+        
+        return jsonify({
+            'success': True,
+            'mensaje': '✅ Sistema reiniciado completamente',
+            'detalles': 'Todas las asignaciones han sido eliminadas. Los participantes pueden volver a consultar.'
+        })
+        
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cur.close()
+        conn.close()
+
 @admin_bp.route('/admin-logout') 
 def logout_admin():
     session.clear()

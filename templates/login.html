@@ -1,104 +1,413 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Ingresar - Amigo Secreto</title>
+    <title>🎄 Ingresar - Amigo Secreto Navideño</title>
     <style>
         body { 
-            font-family: Arial, sans-serif; 
-            max-width: 400px; 
-            margin: 50px auto; 
-            padding: 20px; 
-            background-color: #f5f5f5;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: 
+        linear-gradient(rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.4)),
+        url('/static/images/fondo_sirumatek.png') no-repeat center center fixed;
+    background-size: cover;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #2c3e50;
+    overflow: hidden;
+    position: relative;
+}
+
+        /* Copos de nieve mejorados */
+        .snowflake {
+            position: absolute;
+            top: -10px;
+            color: #3498db;
+            font-size: 1em;
+            animation: fall linear forwards;
+            z-index: 1;
+            user-select: none;
+            pointer-events: none;
+            opacity: 0.7;
         }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+            }
+        }
+
+        /* Contenedor principal moderno */
         .login-container {
-            background: white;
-            padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px 35px;
+            border-radius: 20px;
+            box-shadow: 
+                0 15px 35px rgba(0, 0, 0, 0.1),
+                0 5px 15px rgba(0, 0, 0, 0.05);
+            max-width: 420px;
+            width: 90%;
+            position: relative;
+            z-index: 3;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
         }
+
+        /* Título elegante */
         h2 { 
             text-align: center; 
-            color: #333;
-            margin-bottom: 25px;
+            color: #e74c3c;
+            margin-bottom: 35px;
+            font-size: 32px;
+            font-weight: 300;
+            letter-spacing: 1px;
+            position: relative;
         }
+
+        h2::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, #e74c3c, #3498db);
+            border-radius: 2px;
+        }
+
+        /* Campos de formulario modernos */
         .form-group { 
-            margin-bottom: 15px; 
+            margin-bottom: 25px; 
+            position: relative;
         }
+
         label { 
             display: block; 
-            margin-bottom: 5px; 
-            font-weight: bold;
-            color: #555;
+            margin-bottom: 8px; 
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
+
         input[type="email"], input[type="password"] { 
             width: 100%; 
-            padding: 10px; 
-            border: 1px solid #ddd; 
-            border-radius: 4px; 
+            padding: 15px 20px;
+            border: 2px solid #ecf0f1;
+            border-radius: 12px;
             box-sizing: border-box;
             font-size: 16px;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+            font-family: inherit;
         }
+
         input[type="email"]:focus, input[type="password"]:focus {
-            border-color: #007bff;
+            border-color: #3498db;
             outline: none;
-            box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+            background: white;
+            transform: translateY(-2px);
         }
-        button { 
-            background: #007bff; 
+
+        input[type="email"]::placeholder, input[type="password"]::placeholder {
+            color: #bdc3c7;
+            font-weight: 300;
+        }
+
+        /* Botón moderno */
+        .btn-login {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
             color: white; 
-            padding: 12px 20px; 
-            border: none; 
-            border-radius: 4px; 
+            padding: 16px 20px;
+            border: none;
+            border-radius: 12px;
             cursor: pointer; 
             width: 100%; 
             font-size: 16px;
-            transition: background 0.3s;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+            position: relative;
+            overflow: hidden;
         }
-        button:hover {
-            background: #0056b3;
+
+        .btn-login:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(231, 76, 60, 0.4);
+            background: linear-gradient(135deg, #c0392b, #e74c3c);
         }
+
+        .btn-login:active {
+            transform: translateY(-1px);
+        }
+
+        .btn-login::before {
+            content: "🎄";
+            position: absolute;
+            left: 25px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+        }
+
+        /* Enlaces modernos */
         .links { 
             text-align: center; 
-            margin-top: 20px; 
+            margin-top: 30px;
+            padding-top: 25px;
+            border-top: 1px solid #ecf0f1;
         }
+
         .links a {
-            color: #007bff;
+            color: #3498db;
             text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 5px 0;
         }
+
         .links a:hover {
-            text-decoration: underline;
+            color: #e74c3c;
+        }
+
+        .links a::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #e74c3c;
+            transition: width 0.3s ease;
+        }
+
+        .links a:hover::after {
+            width: 100%;
+        }
+
+        /* Decoraciones sutiles */
+        .decoration {
+            position: absolute;
+            font-size: 24px;
+            opacity: 0.1;
+            z-index: 1;
+            user-select: none;
+            pointer-events: none;
+        }
+
+        .decoration.tree { top: 20px; right: 20px; }
+        .decoration.gift { bottom: 20px; left: 20px; }
+        .decoration.snowflake { top: 50%; left: 10px; transform: translateY(-50%); }
+        .decoration.star { bottom: 40px; right: 30px; }
+
+        /* Mensaje de bienvenida */
+        .welcome-message {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #7f8c8d;
+            font-size: 16px;
+            line-height: 1.5;
+            font-weight: 300;
+        }
+
+        /* Efectos de carga suaves */
+        .login-container {
+            animation: containerEnter 0.8s ease-out;
+        }
+
+        @keyframes containerEnter {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 30px 25px;
+                margin: 20px;
+            }
+            
+            h2 {
+                font-size: 28px;
+            }
+            
+            .decoration {
+                display: none;
+            }
+        }
+
+        /* Efecto de partículas navideñas */
+        .christmas-particle {
+            position: absolute;
+            font-size: 14px;
+            animation: floatParticle 6s ease-in-out infinite;
+            z-index: 1;
+            opacity: 0.6;
+            user-select: none;
+            pointer-events: none;
+        }
+
+        @keyframes floatParticle {
+            0%, 100% { 
+                transform: translate(0, 0) rotate(0deg); 
+                opacity: 0.6;
+            }
+            25% { 
+                transform: translate(10px, -15px) rotate(90deg); 
+                opacity: 0.8;
+            }
+            50% { 
+                transform: translate(-5px, -25px) rotate(180deg); 
+                opacity: 1;
+            }
+            75% { 
+                transform: translate(-15px, -15px) rotate(270deg); 
+                opacity: 0.8;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Copos de nieve -->
+    <div id="snow"></div>
+
+    <!-- Partículas navideñas sutiles -->
+    <div id="particles"></div>
+
+    <!-- Decoraciones sutiles -->
+    <div class="decoration tree">🎄</div>
+    <div class="decoration gift">🎁</div>
+    <div class="decoration snowflake">❄️</div>
+    <div class="decoration star">⭐</div>
+
     <div class="login-container">
-        <h2>🔐 Ingresar</h2>
+        <h2>Ingresar</h2>
+        
+        <div class="welcome-message">
+            Bienvenido al Amigo Secreto Navideño<br>
+            <span style="font-size: 14px; color: #bdc3c7;">Ingresa tus datos para continuar</span>
+        </div>
         
         <form action="/login" method="POST">
             <div class="form-group">
-                <label>Correo electrónico:</label>
-                <input type="email" name="email" required>
+                <label>📧 Correo electrónico</label>
+                <input type="email" name="email" required placeholder="tu.email@ejemplo.com">
             </div>
             
             <div class="form-group">
-                <label>Clave:</label>
-                <input type="password" name="password" required>
+                <label>🔑 Contraseña</label>
+                <input type="password" name="password" required placeholder="Tu contraseña segura">
             </div>
             
-            <button type="submit">Ingresar</button>
+            <button type="submit" class="btn-login">Ingresar a la experiencia</button>
         </form>
 
         <div class="links">
-            <p>¿No estás registrado? <a href="/registro">Registrarse</a></p>
+            <p>¿Primera vez aquí? <a href="/registro">Crear una cuenta</a></p>
+            <p style="margin-top: 15px; font-size: 14px; color: #95a5a6;">
+                ✨ La magia de la navidad te espera
+            </p>
         </div>
     </div>
 
     <script>
+        // Crear copos de nieve mejorados
+        function createSnow() {
+            const snowContainer = document.getElementById('snow');
+            const snowflakes = ['❄', '•', '✦'];
+            
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    const snowflake = document.createElement('div');
+                    snowflake.className = 'snowflake';
+                    snowflake.innerHTML = snowflakes[Math.floor(Math.random() * snowflakes.length)];
+                    snowflake.style.left = Math.random() * 100 + 'vw';
+                    snowflake.style.animationDuration = (Math.random() * 8 + 4) + 's';
+                    snowflake.style.opacity = Math.random() * 0.5 + 0.2;
+                    snowflake.style.fontSize = (Math.random() * 8 + 8) + 'px';
+                    snowflake.style.color = `hsl(${Math.random() * 60 + 200}, 70%, 70%)`;
+                    snowContainer.appendChild(snowflake);
+                    
+                    setTimeout(() => {
+                        if (snowflake.parentNode) {
+                            snowflake.remove();
+                        }
+                    }, 12000);
+                }, i * 500);
+            }
+        }
+
+        // Crear partículas navideñas sutiles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particles = ['❄', '🎄', '🎁', '⭐', '🔔'];
+            
+            for (let i = 0; i < 8; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'christmas-particle';
+                particle.innerHTML = particles[Math.floor(Math.random() * particles.length)];
+                particle.style.left = Math.random() * 100 + 'vw';
+                particle.style.top = Math.random() * 100 + 'vh';
+                particle.style.animationDelay = (Math.random() * 6) + 's';
+                particle.style.fontSize = (Math.random() * 10 + 12) + 'px';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Efecto de entrada para los campos
+        function animateFormFields() {
+            const fields = document.querySelectorAll('.form-group');
+            fields.forEach((field, index) => {
+                field.style.animation = `containerEnter 0.6s ease-out ${index * 0.1}s both`;
+            });
+        }
+
+        // Inicializar efectos
+        document.addEventListener('DOMContentLoaded', function() {
+            createSnow();
+            createParticles();
+            animateFormFields();
+            
+            setInterval(createSnow, 6000);
+        });
+
         // Manejar mensajes de error de Flask
         const urlParams = new URLSearchParams(window.location.search);
         const error = urlParams.get('error');
         if (error) {
-            alert('Error: ' + decodeURIComponent(error));
+            // Crear notificación elegante en lugar de alert
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #e74c3c;
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                z-index: 1000;
+                animation: slideIn 0.3s ease-out;
+            `;
+            notification.innerHTML = `⚠️ ${decodeURIComponent(error)}`;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease-in forwards';
+                setTimeout(() => notification.remove(), 300);
+            }, 5000);
         }
     </script>
 </body>
