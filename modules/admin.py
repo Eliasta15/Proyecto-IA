@@ -14,7 +14,7 @@ DB_CONFIG = {
 
 admin_bp = Blueprint('admin', __name__)
 
-# Middleware para verificar si es administrador CON AUTENTICACIÓN
+# Middleware para verificar si es administrador CON AUTENTICACIÓN prueba
 def admin_required(f):
     def decorated_function(*args, **kwargs):
         # Verificar si el usuario está autenticado como admin
