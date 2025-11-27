@@ -3,6 +3,7 @@ import psycopg2
 import os
 from dotenv import load_dotenv
 import requests
+import hashlib
 
 auth_bp = Blueprint('auth', __name__)
 BACKEND_URL = os.getenv('BACKEND_URL')
@@ -21,11 +22,11 @@ def login_usuario():
     try:
         email = request.form.get('email')
         password = request.form.get('password')
-        
-        print(f"🔍 DEBUG LOGIN: email={email}, password={password}")
-        
+
+        password = hashlib.sha256(password.encode())
+        password = password.hexdigest()        
         backend_response = requests.post(
-            f"{BACKEND_URL}auth",
+            f"{BACKEND_URL}auth/sing-in/",
             json={"email": email, "password": password},
             timeout=300
         )

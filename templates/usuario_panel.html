@@ -125,7 +125,6 @@
         <div class="user-info">
             <h3>👋 Hola, {{ session.usuario_nombre }}!</h3>
             <p>Email: {{ session.usuario_email }}</p>
-            <p>ID Usuario: {{ session.usuario_id }}</p>
         </div>
 
         <!-- Información del Amigo Secreto -->
@@ -172,17 +171,16 @@
                 
                 const infoDiv = document.getElementById('infoAmigo');
                 
-                if (data.amigo_secreto) {
-                    const amigo = data.amigo_secreto;
+                if (data != null) {
                     infoDiv.innerHTML = `
-                        <div class="nombre-amigo">🎁 ¡Tu Amigo Secreto es: ${amigo.nombre || 'No disponible'}!</div>
+                        <div class="nombre-amigo">🎁 ¡Tu Amigo Secreto es: ${data.nombre || 'No disponible'}!</div>
                         <h4>🎯 Información para el regalo:</h4>
-                        <p><strong>Gustos:</strong> ${amigo.gustos || 'No especificado'}</p>
-                        <p><strong>Color favorito:</strong> ${amigo.color_favorito || 'No especificado'}</p>
-                        <p><strong>Regalo deseado:</strong> ${amigo.regalo_deseado || 'No especificado'}</p>
-                        ${amigo.talla_camisa ? `<p><strong>Talla camisa:</strong> ${amigo.talla_camisa}</p>` : ''}
-                        ${amigo.talla_pantalon ? `<p><strong>Talla pantalón:</strong> ${amigo.talla_pantalon}</p>` : ''}
-                        ${amigo.talla_zapato ? `<p><strong>Talla zapato:</strong> ${amigo.talla_zapato}</p>` : ''}
+                        <p><strong>Gustos:</strong> ${data.gustos || 'No especificado'}</p>
+                        <p><strong>Color favorito:</strong> ${data.color_favorito || 'No especificado'}</p>
+                        <p><strong>Regalo deseado:</strong> ${data.regalo_deseado || 'No especificado'}</p>
+                        ${data.talla_camisa ? `<p><strong>Talla camisa:</strong> ${data.talla_camisa}</p>` : ''}
+                        ${data.talla_pantalon ? `<p><strong>Talla pantalón:</strong> ${data.talla_pantalon}</p>` : ''}
+                        ${data.talla_zapato ? `<p><strong>Talla zapato:</strong> ${data.talla_zapato}</p>` : ''}
                     `;
                 } else {
                     infoDiv.innerHTML = `<p>${data.mensaje || 'Aún no se ha realizado el sorteo'}</p>`;
@@ -195,23 +193,22 @@
         // Función para cargar el historial de chat
         async function cargarHistorialChat() {
             try {
-                const response = await fetch('/api/chat/historial/{{ session.usuario_id }}');
+                const response = await fetch('/api/chat/historial');
                 const data = await response.json();
                 
                 const chatMessages = document.getElementById('chatMessages');
                 
-                if (data.historial && data.historial.length > 0) {
+                if (data != null && Array.isArray(data)) {
                     // Limpiar mensaje de bienvenida
                     chatMessages.innerHTML = '';
-                    
-                    // Agregar todas las conversaciones del historial
-                    data.historial.reverse().forEach(chat => {
-                        // Mensaje del usuario
+                    data.forEach(chat => {
+                        const fecha = new Date(chat.created_at);
+                        const fechaFormateada = fecha.toLocaleString('es-ES');             
                         const userMessage = document.createElement('div');
                         userMessage.className = 'message user-message';
                         userMessage.innerHTML = `
                             <strong>Tú:</strong> ${chat.pregunta}
-                            <div class="timestamp">${chat.fecha}</div>
+                            <div class="timestamp">${fechaFormateada}</div>
                         `;
                         chatMessages.appendChild(userMessage);
                         
@@ -220,7 +217,7 @@
                         assistantMessage.className = 'message assistant-message';
                         assistantMessage.innerHTML = `
                             <strong>Asistente:</strong> ${chat.respuesta}
-                            <div class="timestamp">${chat.fecha}</div>
+                            <div class="timestamp">${fechaFormateada}</div>
                         `;
                         chatMessages.appendChild(assistantMessage);
                     });
@@ -260,12 +257,11 @@
             
             try {
                 // USAR EL ENDPOINT CORRECTO con usuario_id
-                const response = await fetch('/api/chat', {
+                const response = await fetch('/api/chat-ia', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({
-                        pregunta: pregunta,
-                        usuario_id: {{ session.usuario_id }}
+                        pregunta: pregunta
                     })
                 });
                 
@@ -277,7 +273,7 @@
                 const assistantMessage = document.createElement('div');
                 assistantMessage.className = 'message assistant-message';
                 assistantMessage.innerHTML = `
-                    <strong>Asistente:</strong> ${data.respuesta || data.error || 'No se pudo obtener respuesta'}
+                    <strong>Asistente:</strong> ${data.respuesta || 'Disculpa, en estos momentos no puedo ayudarte.'}
                     <div class="timestamp">Ahora</div>
                 `;
                 chatMessages.appendChild(assistantMessage);

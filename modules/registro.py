@@ -57,6 +57,9 @@ def registrar_participante():
         if len(clave) < 8:
             return jsonify({'error': 'La clave debe tener al menos 8 caracteres'}), 400
         
+        clave = hashlib.sha256(clave.encode())
+        clave = clave.hexdigest() 
+        
         send_data = {
             "nombre": data.get('nombre'),
             "email": data.get('email'),

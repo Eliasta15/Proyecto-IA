@@ -1,9 +1,8 @@
-from flask import Flask, jsonify, request, render_template, session, redirect
+from flask import Flask, jsonify, request, render_template, session, redirect, url_for
 import os
 import psycopg2
 import requests
 import json
-from flask import render_template
 from datetime import datetime
 import random
 import decimal
@@ -16,9 +15,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = 'tu_clave_secreta_aqui'  # ← IMPORTANTE para sessions
+app.secret_key = 'tu_clave_secreta_aqui'
 BACKEND_URL = os.getenv('BACKEND_URL', 'http://localhost:5000')
-# Registra el blueprint del registro
 app.register_blueprint(registro_bp)
 app.register_blueprint(auth_bp)
 app.register_blueprint(usuario_bp)
@@ -62,7 +60,6 @@ def debug_usuario(usuario_id):
     finally:
         cur.close()
         conn.close() """
-
 
 @app.route('/')
 def pagina_principal():

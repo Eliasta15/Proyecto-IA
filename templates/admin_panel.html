@@ -264,7 +264,7 @@
         <div class="alert alert-info">
             <strong>Tipos de Sorteo:</strong><br>
             • <strong>Sorteo Completo:</strong> Reinicia todo y asigna nuevos amigos secretos (para primer sorteo)<br>
-            • <strong>Sorteo Nuevos:</strong> Solo para participantes que no han sido asignados (después del primer sorteo)
+            • <strong>Repetir Sorteo:</strong> Se repite el sorteo tomando en cuenta los nuevos participantes
         </div>
         
         <div id="alertSorteo"></div>
@@ -279,13 +279,13 @@
             
             <!-- Botón Sorteo Nuevos - Solo visible DESPUÉS del primer sorteo -->
             <button class="btn btn-success btn-lg me-2" id="btnSorteoNuevos" 
-                    onclick="realizarSorteoNuevos()" style="display: none;">
-                ✅ Sorteo para Nuevos Participantes
+                    onclick="realizarSorteoCompleto()" style="display: none;">
+                ✅ Repetir Sorteo
             </button>
             
             <!-- Botón Reiniciar - Solo visible DESPUÉS del primer sorteo -->
             <button class="btn btn-danger btn-lg" id="btnReiniciar" 
-                    onclick="reiniciarSorteo()" style="display: none;">
+                    onclick="realizarSorteoCompleto()" style="display: none;">
                 🗑️ Reiniciar Todo
             </button>
         </div>
@@ -328,7 +328,6 @@
                         <th>Email</th>
                         <th>Departamento</th>
                         <th>Gustos</th>
-                        <th>Código Acceso</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
@@ -391,7 +390,7 @@
                     btnSorteoNuevos.disabled = false;
                     btnSorteoNuevos.title = `Realizar sorteo para ${estadisticas.participantes_sin_asignacion} nuevos participantes`;
                 } else {
-                    btnSorteoNuevos.style.display = 'inline-block';
+                    btnSorteoNuevos.style.display = 'none';
                     btnSorteoNuevos.disabled = true;
                     
                     if (estadisticas.participantes_sin_asignacion === 0) {
@@ -472,7 +471,7 @@ function actualizarInfoSorteo(estadisticas) {
             btn.innerHTML = '🔄 Realizando sorteo COMPLETO...';
             
             try {
-                const response = await fetch('/api/admin/sorteo-completo', {
+                const response = await fetch('/api/admin/realizar-sorteo', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({confirmado: true})
@@ -505,7 +504,7 @@ function actualizarInfoSorteo(estadisticas) {
             const alertDiv = document.getElementById('alertSorteo');
             
             btn.disabled = true;
-            btn.innerHTML = '🔄 Realizando sorteo para nuevos...';
+            btn.innerHTML = '🔄 Realizando sorteo...';
             
             try {
                 const response = await fetch('/api/admin/realizar-sorteo', {
@@ -675,8 +674,7 @@ async function reiniciarSorteo() {
                         <td>${participante.departamento || 'N/A'}</td>
                         <td title="${participante.gustos || ''}">
                             ${(participante.gustos || 'N/A').substring(0, 30)}${(participante.gustos || '').length > 30 ? '...' : ''}
-                        </td>
-                        <td><code>${participante.codigo_acceso}</code></td>
+                        </td>                        
                         <td>
                             <button class="btn btn-primary" onclick="verDetallesParticipante(${participante.id})" 
                                     style="padding: 5px 10px; font-size: 12px;">
@@ -779,7 +777,6 @@ async function reiniciarSorteo() {
                     cerrarModal();
                     return;
                 }
-                
                 // Llenar los campos del modal
                 document.getElementById('detailNombre').textContent = data.nombre || 'N/A';
                 document.getElementById('detailEmail').textContent = data.email || 'N/A';
@@ -793,11 +790,11 @@ async function reiniciarSorteo() {
                 document.getElementById('detailRegaloDeseado').textContent = data.regalo_deseado || 'N/A';
                 
                 // Mostrar información de asignación si existe
-                if (data.tiene_asignacion && data.amigo_secreto) {
-                    document.getElementById('detailAsignadoA').textContent = data.amigo_secreto.nombre;
-                    document.getElementById('detailGustosAmigo').textContent = data.amigo_secreto.gustos || 'N/A';
+                if (data.amigo_secreto != null) {
                     document.getElementById('infoAsignacion').style.display = 'block';
                     document.getElementById('sinAsignacion').style.display = 'none';
+                    document.getElementById('detailAsignadoA').textContent = data.amigo_secreto.nombre;
+                    document.getElementById('detailGustosAmigo').textContent = data.amigo_secreto.gustos || 'N/A';
                 } else {
                     document.getElementById('infoAsignacion').style.display = 'none';
                     document.getElementById('sinAsignacion').style.display = 'block';
@@ -961,7 +958,7 @@ async function reiniciarSorteo() {
                         <h4>🎁 Información de Amigo Secreto</h4>
                         <div class="detail-grid">
                             <div class="detail-item">
-                                <span class="detail-label">Asignado a:</span>
+                                <span class="detail-label">Le regala a:</span>
                                 <span class="detail-value" id="detailAsignadoA"></span>
                             </div>
                             <div class="detail-item">
