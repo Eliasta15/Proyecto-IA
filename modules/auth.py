@@ -1,20 +1,11 @@
 from flask import Blueprint, request, jsonify, render_template, session, redirect, url_for
 import psycopg2
-
-# configuración de DB
-DB_CONFIG = {
-    'host': '159.203.41.84',
-    'port': '6432',
-    'database': 'REGISTROS',
-    'user': 'consulta_psuv',
-    'password': 'NovieNTorISE'
-}
+import os
+from dotenv import load_dotenv
+import requests
 
 auth_bp = Blueprint('auth', __name__)
-
-ADMIN_CREDENTIALS = {
-    'prueba@admin.com': 'admin123'
-}
+BACKEND_URL = os.getenv('BACKEND_URL')
 
 @auth_bp.route('/login')
 def formulario_login():
@@ -27,43 +18,37 @@ def logout():
 
 @auth_bp.route('/login', methods=['POST'])
 def login_usuario():
-    email = request.form.get('email')
-    password = request.form.get('password')
-    
-    print(f"🔍 DEBUG LOGIN: email={email}, password={password}")
-    
-    # PRIMERO: Verificar si es administrador
-    if email in ADMIN_CREDENTIALS and ADMIN_CREDENTIALS[email] == password:
-        session['es_administrador'] = True
-        session['admin_usuario'] = email
-        print("✅ DEBUG: Login exitoso como administrador")
-        return redirect('/admin')  # Redirige al panel de admin
-    
-    # SEGUNDO: Si no es admin, verificar como usuario normal
-    conn = psycopg2.connect(**DB_CONFIG)
-    cur = conn.cursor()
-    
     try:
-        cur.execute("""
-            SELECT id, nombre FROM ia.tb_participantes_ai 
-            WHERE email = %s AND codigo_acceso = %s
-        """, (email, password))
+        email = request.form.get('email')
+        password = request.form.get('password')
         
-        usuario = cur.fetchone()
+        print(f"🔍 DEBUG LOGIN: email={email}, password={password}")
         
-        if usuario:
-            session['usuario_id'] = usuario[0]
-            session['usuario_nombre'] = usuario[1]
-            session['usuario_email'] = email
-            print("✅ DEBUG: Login exitoso como usuario normal")
-            return redirect('/usuario')  # Redirige al panel de usuario normal
-        else:
-            print("❌ DEBUG: Credenciales incorrectas")
-            return render_template('login.html', error='Email o clave incorrectos')
-            
+        backend_response = requests.post(
+            f"{BACKEND_URL}auth",
+            json={"email": email, "password": password},
+            timeout=300
+        )
+
+        backend_data = backend_response.json()
+        if backend_data["code"] > 300:         
+            return jsonify({'error': backend_data["message"]}), backend_data["code"]
+        
+        data = backend_data["data"]
+        if data.get("is_admin"):
+            session['es_administrador'] = True
+            session['admin_usuario'] = email
+            print("✅ DEBUG: Login exitoso como administrador")
+            return redirect('/admin')
+        
+                
+        
+        session['usuario_id'] = data.get("id")
+        session['usuario_nombre'] = data.get("nombre")
+        session['usuario_email'] = data.get("email")
+        print("✅ DEBUG: Login exitoso como usuario normal")
+        return redirect('/usuario')
+               
     except Exception as e:
         print(f"❌ DEBUG: Error en login: {str(e)}")
         return render_template('login.html', error='Error del sistema')
-    finally:
-        cur.close()
-        conn.close()
