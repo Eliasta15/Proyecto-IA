@@ -407,7 +407,7 @@
         // Cargar estadísticas al iniciar
         async function cargarEstadisticas() {
             try {
-                const response = await fetch('/api/admin/estadisticas');
+                const response = await fetch('/admin/estadisticas');
                 const data = await response.json();
                 
                 // Actualizar las tarjetas principales
@@ -471,7 +471,7 @@ function actualizarInfoSorteo(estadisticas) {
             btn.innerHTML = '🔄 Realizando sorteo COMPLETO...';
             
             try {
-                const response = await fetch('/api/admin/realizar-sorteo', {
+                const response = await fetch('/admin/realizar-sorteo', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({confirmado: true})
@@ -507,7 +507,7 @@ function actualizarInfoSorteo(estadisticas) {
             btn.innerHTML = '🔄 Realizando sorteo...';
             
             try {
-                const response = await fetch('/api/admin/realizar-sorteo', {
+                const response = await fetch('/admin/realizar-sorteo', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'}
                 });
@@ -550,7 +550,7 @@ async function reiniciarSorteo() {
     btn.innerHTML = '🔄 Reiniciando sistema...';
     
     try {
-        const response = await fetch('/api/admin/reiniciar-todo', {
+        const response = await fetch('/admin/reiniciar-todo', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({confirmado: true})
@@ -639,7 +639,7 @@ async function reiniciarSorteo() {
             paginaActual = 1;
             
             try {
-                const response = await fetch(`/api/admin/buscar-participantes?q=${encodeURIComponent(busqueda)}`);
+                const response = await fetch(`/admin/buscar-participantes?q=${encodeURIComponent(busqueda)}`);
                 const data = await response.json();
                 
                 actualizarTablaParticipantes(data);
@@ -709,7 +709,7 @@ async function reiniciarSorteo() {
 
         async function cargarAsignaciones() {
             try {
-                const response = await fetch('/api/admin/asignaciones');
+                const response = await fetch('/admin/asignaciones');
                 const data = await response.json();
                 
                 const listaDiv = document.getElementById('listaAsignaciones');
@@ -769,7 +769,7 @@ async function reiniciarSorteo() {
 
         async function cargarDetallesParticipante(participanteId) {
             try {
-                const response = await fetch(`/api/admin/detalles-participante/${participanteId}`);
+                const response = await fetch(`/admin/detalles-participante/${participanteId}`);
                 const data = await response.json();
                 
                 if (data.error) {
@@ -824,7 +824,7 @@ async function reiniciarSorteo() {
                 btnExportar.disabled = true;
                 
                 // Hacer la solicitud
-                const response = await fetch('/api/admin/exportar-participantes');
+                const response = await fetch('/admin/exportar-participantes');
                 
                 if (!response.ok) {
                     throw new Error('Error en la exportación');

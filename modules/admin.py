@@ -26,7 +26,7 @@ def admin_required(f):
 def panel_admin():
     return render_template('admin_panel.html')
 
-@admin_bp.route('/api/admin/participantes')
+@admin_bp.route('/admin/participantes')
 @admin_required
 def obtener_participantes():    
     try:
@@ -59,7 +59,7 @@ def obtener_participantes():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@admin_bp.route('/api/admin/realizar-sorteo', methods=['POST'])
+@admin_bp.route('/admin/realizar-sorteo', methods=['POST'])
 @admin_required
 def realizar_sorteo():    
     try:
@@ -92,7 +92,7 @@ def realizar_sorteo():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@admin_bp.route('/api/admin/asignaciones')
+@admin_bp.route('/admin/asignaciones')
 @admin_required
 def obtener_asignaciones():    
     try:
@@ -111,7 +111,7 @@ def obtener_asignaciones():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@admin_bp.route('/api/admin/buscar-participantes')
+@admin_bp.route('/admin/buscar-participantes')
 @admin_required
 def buscar_participantes():
     try:
@@ -130,7 +130,7 @@ def buscar_participantes():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@admin_bp.route('/api/admin/estadisticas')
+@admin_bp.route('/admin/estadisticas')
 @admin_required
 def obtener_estadisticas():    
     try:
@@ -148,7 +148,7 @@ def obtener_estadisticas():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@admin_bp.route('/api/admin/detalles-participante/<int:participante_id>')
+@admin_bp.route('/admin/detalles-participante/<int:participante_id>')
 @admin_required
 def detalles_participante(participante_id):    
     try:        
@@ -170,7 +170,7 @@ def detalles_participante(participante_id):
         return jsonify({'error': str(e)}), 500
 
 """ Por hacer """    
-""" @admin_bp.route('/api/admin/reiniciar-todo', methods=['POST'])
+""" @admin_bp.route('/admin/reiniciar-todo', methods=['POST'])
 @admin_required
 def reiniciar_todo():
     conn = psycopg2.connect(**DB_CONFIG)
