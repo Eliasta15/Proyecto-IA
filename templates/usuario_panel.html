@@ -166,7 +166,7 @@
 
         async function cargarAmigoSecreto() {
             try {
-                const response = await fetch('/api/mi-amigo-secreto');
+                const response = await fetch('/usuario/mi-amigo-secreto');
                 const data = await response.json();
                 
                 const infoDiv = document.getElementById('infoAmigo');
@@ -193,7 +193,7 @@
         // Función para cargar el historial de chat
         async function cargarHistorialChat() {
             try {
-                const response = await fetch('/api/chat/historial');
+                const response = await fetch('/usuario/chat/historial');
                 const data = await response.json();
                 
                 const chatMessages = document.getElementById('chatMessages');
@@ -257,7 +257,7 @@
             
             try {
                 // USAR EL ENDPOINT CORRECTO con usuario_id
-                const response = await fetch('/api/chat-ia', {
+                const response = await fetch('/usuario/chat-ia', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({

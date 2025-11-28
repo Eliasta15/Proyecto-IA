@@ -23,7 +23,7 @@ def login_required(f):
 def panel_usuario():
     return render_template('usuario_panel.html')
 
-@usuario_bp.route('/api/mi-amigo-secreto')
+@usuario_bp.route('/usuario/mi-amigo-secreto')
 @login_required
 def obtener_amigo_secreto():
     try:
@@ -46,7 +46,7 @@ def obtener_amigo_secreto():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@usuario_bp.route('/api/chat-ia', methods=['POST'])
+@usuario_bp.route('/usuario/chat-ia', methods=['POST'])
 @login_required
 def chat_ia_personalizado():
     try:
@@ -73,7 +73,7 @@ def chat_ia_personalizado():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     
-@usuario_bp.route('/api/chat/historial', methods=['GET'])
+@usuario_bp.route('/usuario/chat/historial', methods=['GET'])
 @login_required
 def historial_chat():
     try:
