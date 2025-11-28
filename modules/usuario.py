@@ -7,9 +7,9 @@ from dotenv import load_dotenv
 load_dotenv()
 BACKEND_URL = os.getenv('BACKEND_URL')
 
-usuario_bp = Blueprint('users', __name__)
+usuario_bp = Blueprint('usuario', __name__)
 
-# Middleware para verificar si el users está logueado
+# Middleware para verificar si el usuario está logueado
 def login_required(f):
     def decorated_function(*args, **kwargs):
         if 'usuario_id' not in session:
@@ -18,12 +18,12 @@ def login_required(f):
     decorated_function.__name__ = f.__name__
     return decorated_function
 
-@usuario_bp.route('/users')
+@usuario_bp.route('/usuario')
 @login_required
 def panel_usuario():
     return render_template('usuario_panel.html')
 
-@usuario_bp.route('/users/mi-amigo-secreto')
+@usuario_bp.route('/usuario/mi-amigo-secreto')
 @login_required
 def obtener_amigo_secreto():
     try:
@@ -46,7 +46,7 @@ def obtener_amigo_secreto():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@usuario_bp.route('/users/chat-ia', methods=['POST'])
+@usuario_bp.route('/usuario/chat-ia', methods=['POST'])
 @login_required
 def chat_ia_personalizado():
     try:
@@ -73,7 +73,7 @@ def chat_ia_personalizado():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     
-@usuario_bp.route('/users/chat/historial', methods=['GET'])
+@usuario_bp.route('/usuario/chat/historial', methods=['GET'])
 @login_required
 def historial_chat():
     try:
