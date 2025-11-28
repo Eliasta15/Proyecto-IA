@@ -73,7 +73,7 @@ def chat_ia_personalizado():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     
-@usuario_bp.route('/usuario/chat/historial', methods=['GET'])
+@usuario_bp.route('/usuario/historial-chat', methods=['GET'])
 @login_required
 def historial_chat():
     try:

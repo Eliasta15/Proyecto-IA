@@ -193,7 +193,7 @@
         // Función para cargar el historial de chat
         async function cargarHistorialChat() {
             try {
-                const response = await fetch('/usuario/chat/historial');
+                const response = await fetch('/usuario/historial-chat');
                 const data = await response.json();
                 
                 const chatMessages = document.getElementById('chatMessages');
