@@ -37,7 +37,7 @@ def enviar_codigo_email(email, codigo):
 def formulario_registro():
     return render_template('registro.html', backend_url=BACKEND_URL)
 
-@registro_bp.route('/api/registro', methods=['POST'])
+@registro_bp.route('/registro', methods=['POST'])
 def registrar_participante():
     try:            
         # ✅ FORMA CORRECTA - elige una:
