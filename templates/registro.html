@@ -34,7 +34,7 @@
                 <label>Crear Clave de Acceso *</label>
                 <input type="password" name="clave" required 
                        placeholder="Ingresa tu clave para acceder al sistema"
-                       minlength="4">
+                       minlength="8">
                 <small>La clave debe tener al menos 8 caracteres</small>
             </div>
             <div class="grupo-form">
@@ -104,8 +104,8 @@
                 }
                 
                 // ✅ VALIDAR LONGITUD MÍNIMA
-                if (data.clave.length < 4) {
-                    alert('❌ La clave debe tener al menos 4 caracteres.');
+                if (data.clave.length < 8) {
+                    alert('❌ La clave debe tener al menos 8 caracteres.');
                     return;
                 }
                 

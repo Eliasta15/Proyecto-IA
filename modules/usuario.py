@@ -91,3 +91,42 @@ def historial_chat():
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+@usuario_bp.route('/usuario/update-user', methods=['PUT'])
+def update_user_preferences():
+    try:            
+        data = request.get_json()
+        id_usuario = session['usuario_id']
+        backend_response = requests.put(
+            f"{BACKEND_URL}users/update-user/{id_usuario}",
+            json=data,
+            timeout=300
+        )
+        backend_data = backend_response.json()
+        if backend_data["code"] > 300:         
+            return jsonify({'error': backend_data["message"]}), backend_data["code"]
+        
+        return jsonify(backend_data["data"]), backend_response.status_code
+        
+    except requests.exceptions.RequestException as e:
+        return jsonify({'error': f'Error conectando con el backend: {str(e)}'}), 500
+    
+
+@usuario_bp.route('/usuario/participant', methods=['GET'])
+@login_required
+def get_participant():
+    try:
+        usuario_id = session['usuario_id']
+        backend_response = requests.get(
+            f"{BACKEND_URL}users/participant/{usuario_id}",
+            timeout=300
+        )
+        backend_data = backend_response.json()
+        if backend_data["code"] > 300:
+            return jsonify({'error': backend_data["message"]}), backend_data["code"]
+        
+        data = backend_data["data"]        
+        return jsonify(data)
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500

@@ -127,6 +127,86 @@
             <p>Email: {{ session.usuario_email }}</p>
         </div>
 
+        <div class="section">
+            <h2>🔍 Tu información</h2>
+            <div id="infoUsuario" class="info-display">
+                <p>Cargando información...</p>
+            </div>
+            <div class="button-group">
+                <button onclick="cargarMisDatos()" class="btn-edit">🔄 Actualizar Información</button>
+                <button onclick="mostrarFormularioEdicion()" class="btn-edit">✏️ Editar Mis Preferencias</button>
+            </div>
+
+            <!-- Formulario de edición (oculto inicialmente) -->
+            <div id="formularioEdicion" class="edit-form" style="display: none;">
+                <h3>✏️ Editar Mis Preferencias</h3>
+                <form id="preferenciasForm">
+                    <div class="form-group">
+                        <label for="gustos">🎯 Gustos e Intereses:</label>
+                        <textarea id="gustos" name="gustos" placeholder="Ej: Música rock, videojuegos, cocina, deportes..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="color_favorito">🎨 Color Favorito:</label>
+                        <input type="text" id="color_favorito" name="color_favorito" placeholder="Ej: Azul, Rojo, Verde...">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="regalo_deseado">🎁 Regalo Deseado:</label>
+                        <textarea id="regalo_deseado" name="regalo_deseado" placeholder="Ej: Un libro de cocina, auriculares, una planta..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="talla_camisa">👕 Talla de Camisa:</label>
+                        <select id="talla_camisa" name="talla_camisa">
+                            <option value="">Seleccionar talla</option>
+                            <option value="XS">XS</option>
+                            <option value="S">S</option>
+                            <option value="M">M</option>
+                            <option value="L">L</option>
+                            <option value="XL">XL</option>
+                            <option value="XXL">XXL</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="talla_pantalon">👖 Talla de Pantalón:</label>
+                        <select id="talla_pantalon" name="talla_pantalon">
+                            <option value="">Seleccionar talla</option>
+                            <option value="28">28</option>
+                            <option value="30">30</option>
+                            <option value="32">32</option>
+                            <option value="34">34</option>
+                            <option value="36">36</option>
+                            <option value="38">38</option>
+                            <option value="40">40</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="talla_zapato">👟 Talla de Zapato:</label>
+                        <select id="talla_zapato" name="talla_zapato">
+                            <option value="">Seleccionar talla</option>
+                            <option value="36">36</option>
+                            <option value="37">37</option>
+                            <option value="38">38</option>
+                            <option value="39">39</option>
+                            <option value="40">40</option>
+                            <option value="41">41</option>
+                            <option value="42">42</option>
+                            <option value="43">43</option>
+                            <option value="44">44</option>
+                        </select>
+                    </div>
+                    
+                    <div class="button-group">
+                        <button type="button" onclick="guardarPreferencias()" class="btn-save">💾 Guardar Cambios</button>
+                        <button type="button" onclick="cancelarEdicion()" class="btn-cancel">❌ Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <!-- Información del Amigo Secreto -->
         <div class="section">
             <h2>🔍 Información de tu Amigo Secreto</h2>
@@ -160,9 +240,91 @@
     <script>
         // Cargar información del amigo secreto al iniciar
         document.addEventListener('DOMContentLoaded', function() {
+            cargarMisDatos();
             cargarAmigoSecreto();
             cargarHistorialChat(); // Cargar historial al iniciar
         });
+
+
+        async function cargarMisDatos() {
+            try {
+                const response = await fetch('/usuario/participant');
+                const data = await response.json();
+                
+                const infoDiv = document.getElementById('infoUsuario');
+                datosUsuario = data;
+                
+                if (data != null) {
+                    infoDiv.innerHTML = `                        
+                        <h4>🎯 Información de tu preferencia para el regalo:</h4>
+                        <p><strong>Gustos:</strong> ${data.gustos || 'No especificado'}</p>
+                        <p><strong>Color favorito:</strong> ${data.color_favorito || 'No especificado'}</p>
+                        <p><strong>Regalo deseado:</strong> ${data.regalo_deseado || 'No especificado'}</p>
+                        ${data.talla_camisa ? `<p><strong>Talla camisa:</strong> ${data.talla_camisa}</p>` : ''}
+                        ${data.talla_pantalon ? `<p><strong>Talla pantalón:</strong> ${data.talla_pantalon}</p>` : ''}
+                        ${data.talla_zapato ? `<p><strong>Talla zapato:</strong> ${data.talla_zapato}</p>` : ''}
+                    `;
+                } else {
+                    infoDiv.innerHTML = `<p>${data.mensaje || 'Aún no se ha realizado el sorteo'}</p>`;
+                }
+            } catch (error) {
+                document.getElementById('infoUsuario').innerHTML = '<p>❌ Error cargando información</p>';
+            }
+        }
+
+        function mostrarFormularioEdicion() {
+            const formulario = document.getElementById('formularioEdicion');
+            formulario.style.display = 'block';
+            
+            // Llenar el formulario con los datos actuales
+            if (datosUsuario) {
+                document.getElementById('gustos').value = datosUsuario.gustos || '';
+                document.getElementById('color_favorito').value = datosUsuario.color_favorito || '';
+                document.getElementById('regalo_deseado').value = datosUsuario.regalo_deseado || '';
+                document.getElementById('talla_camisa').value = datosUsuario.talla_camisa || '';
+                document.getElementById('talla_pantalon').value = datosUsuario.talla_pantalon || '';
+                document.getElementById('talla_zapato').value = datosUsuario.talla_zapato || '';
+            }
+        }
+
+        function cancelarEdicion() {
+            document.getElementById('formularioEdicion').style.display = 'none';
+        }
+
+        async function guardarPreferencias() {
+            try {
+                const formData = {
+                    gustos: document.getElementById('gustos').value,
+                    color_favorito: document.getElementById('color_favorito').value,
+                    regalo_deseado: document.getElementById('regalo_deseado').value,
+                    talla_camisa: document.getElementById('talla_camisa').value,
+                    talla_pantalon: document.getElementById('talla_pantalon').value,
+                    talla_zapato: document.getElementById('talla_zapato').value
+                };
+
+                const response = await fetch('/usuario/update-user', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert('✅ Preferencias actualizadas correctamente');
+                    document.getElementById('formularioEdicion').style.display = 'none';
+                    cargarMisDatos();
+                } else {
+                    alert('❌ Error al actualizar: ' + (result.mensaje || 'Error desconocido'));
+                }
+
+            } catch (error) {
+                alert('❌ Error de conexión al guardar las preferencias');
+                console.error('Error:', error);
+            }
+        }
 
         async function cargarAmigoSecreto() {
             try {
